@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111827">
+    <meta
+      name="description"
+      content="Discover thoughtful recommendations powered by graph connections between people, interests, and items."
+    >
+    <title>Weave — Graph Recommendations</title>
+    <link rel="stylesheet" href="/src/styles.css">
+    <script type="module" src="/src/app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="/" aria-label="Weave home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M7 9.5 16 5l9 4.5v13L16 27l-9-4.5v-13Z" />
+              <path d="m7.5 10 8.5 4 8.5-4M16 14v12M10 7.8l8.4 4.1" />
+              <circle cx="7" cy="9.5" r="2" />
+              <circle cx="25" cy="9.5" r="2" />
+              <circle cx="16" cy="5" r="2" />
+              <circle cx="16" cy="27" r="2" />
+            </svg>
+          </span>
+          <span class="brand-copy">weave<span>GRAPH DISCOVERY</span></span>
+        </a>
+
+        <div class="nav-label">WORKSPACE</div>
+        <nav class="primary-nav" aria-label="Main navigation">
+          <button class="nav-link active" type="button" data-view="dashboard">
+            <span class="nav-icon" aria-hidden="true">⌂</span><span>Overview</span>
+          </button>
+          <button class="nav-link" type="button" data-view="explore">
+            <span class="nav-icon" aria-hidden="true">⌕</span><span>Explore</span>
+          </button>
+          <button class="nav-link" type="button" data-view="saved">
+            <span class="nav-icon" aria-hidden="true">♡</span><span>Saved items</span>
+          </button>
+          <button class="nav-link" type="button" data-view="history">
+            <span class="nav-icon" aria-hidden="true">◷</span><span>Recommendation history</span>
+          </button>
+        </nav>
+
+        <div class="nav-label preferences-label">PERSONALIZE</div>
+        <nav class="primary-nav" aria-label="Personalization">
+          <button class="nav-link" type="button" data-view="preferences">
+            <span class="nav-icon" aria-hidden="true">⌘</span><span>Your interests</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="profile-picker account-card">
+            <label>YOUR ACCOUNT</label>
+            <strong id="account-name">Signed out</strong>
+            <span id="account-email">Sign in to sync your graph.</span>
+            <button class="sign-out-button" id="logout-button" type="button" hidden>Sign out</button>
+          </div>
+          <div class="engine-note">
+            <span class="engine-pulse" aria-hidden="true"></span>
+            <span><strong>Graph engine</strong><small>Personalized discovery</small></span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <header class="topbar">
+          <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Open navigation">
+            <span></span><span></span><span></span>
+          </button>
+          <div class="page-heading">
+            <div class="eyebrow" id="page-kicker">YOUR SPACE</div>
+            <h1 id="page-title">Overview</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="connection-pill" id="connection-status" role="status">
+              <span class="status-dot"></span><span>Connecting to MySQL</span>
+            </div>
+            <button class="icon-button" id="refresh-button" type="button" aria-label="Refresh page data" title="Refresh">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M20 7v5h-5M4 17v-5h5" />
+                <path d="M6.1 9a7 7 0 0 1 11.6-2L20 12M4 12l2.3 5a7 7 0 0 0 11.6-2" />
+              </svg>
+            </button>
+            <div class="user-avatar" id="user-avatar" aria-label="Current profile">W</div>
+          </div>
+        </header>
+
+        <main class="page-content" id="page-content" tabindex="-1">
+          <div class="loading-state"><span class="spinner"></span><span>Connecting your graph…</span></div>
+        </main>
+        <footer class="footer">
+          <span>WEAVE · GRAPH-POWERED DISCOVERY</span>
+          <span>Built around your interests, not just your clicks.</span>
+        </footer>
+      </div>
+    </div>
+
+    <dialog class="item-dialog" id="item-dialog" aria-labelledby="dialog-title">
+      <div id="dialog-content"></div>
+    </dialog>
+    <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+  </body>
+</html>
