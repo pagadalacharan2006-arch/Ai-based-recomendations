@@ -13,7 +13,11 @@ class DemoModeTests(unittest.TestCase):
         database_path = os.path.join(self.temp_dir.name, "demo.sqlite3")
         with patch.dict(
             os.environ,
-            {"DEMO_MODE": "true", "SQLITE_PATH": database_path},
+            {
+                "DEMO_MODE": "true",
+                "DB_PORT": "",
+                "SQLITE_PATH": database_path,
+            },
         ):
             self.app = create_app()
         self.app.config.update(TESTING=True, SECRET_KEY="demo-test-secret")

@@ -12,6 +12,17 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 def build_config() -> dict:
     demo_mode = os.getenv("DEMO_MODE", "false").lower() in {"1", "true", "yes"}
+    mysql_config = {}
+    if not demo_mode:
+        mysql_config = {
+            "host": os.getenv("DB_HOST", "127.0.0.1"),
+            "port": int(os.getenv("DB_PORT") or "3306"),
+            "user": os.getenv("DB_USER", "root"),
+            "password": os.getenv("DB_PASSWORD", ""),
+            "database": os.getenv("DB_NAME", "ai_graph_recommendation"),
+            "connection_timeout": 5,
+            "autocommit": False,
+        }
     return {
         "HOST": os.getenv("FLASK_HOST", "127.0.0.1"),
         "PORT": int(os.getenv("FLASK_PORT", "5000")),
@@ -26,15 +37,7 @@ def build_config() -> dict:
         in {"1", "true", "yes"},
         "PERMANENT_SESSION_LIFETIME": timedelta(days=14),
         "MAX_CONTENT_LENGTH": 1024 * 1024,
-        "MYSQL_CONFIG": {
-            "host": os.getenv("DB_HOST", "127.0.0.1"),
-            "port": int(os.getenv("DB_PORT", "3306")),
-            "user": os.getenv("DB_USER", "root"),
-            "password": os.getenv("DB_PASSWORD", ""),
-            "database": os.getenv("DB_NAME", "ai_graph_recommendation"),
-            "connection_timeout": 5,
-            "autocommit": False,
-        },
+        "MYSQL_CONFIG": mysql_config,
         "FRONTEND_PUBLIC": PROJECT_ROOT / "frontend" / "public",
         "FRONTEND_SOURCE": PROJECT_ROOT / "frontend" / "src",
     }
