@@ -11,10 +11,15 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 
 def build_config() -> dict:
+    demo_mode = os.getenv("DEMO_MODE", "false").lower() in {"1", "true", "yes"}
     return {
         "HOST": os.getenv("FLASK_HOST", "127.0.0.1"),
         "PORT": int(os.getenv("FLASK_PORT", "5000")),
         "SECRET_KEY": os.getenv("APP_SECRET_KEY") or secrets.token_hex(32),
+        "DB_DRIVER": "sqlite" if demo_mode else "mysql",
+        "SQLITE_PATH": os.getenv(
+            "SQLITE_PATH", str(PROJECT_ROOT / "demo.sqlite3")
+        ),
         "SESSION_COOKIE_HTTPONLY": True,
         "SESSION_COOKIE_SAMESITE": "Lax",
         "SESSION_COOKIE_SECURE": os.getenv("SESSION_COOKIE_SECURE", "false").lower()

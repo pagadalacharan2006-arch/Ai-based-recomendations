@@ -33,16 +33,13 @@ To set/reset an existing account password from PowerShell, run `python -m backen
 
 For HTTPS deployment, set `SESSION_COOKIE_SECURE=true` and configure a strong persistent `APP_SECRET_KEY`. The app binds to `127.0.0.1` by default.
 
-## Free cloud deployment
+## Temporary free demo deployment
 
-The repository includes a Dockerfile and Render Blueprint for a free Render web service. Render builds the image from GitHub, so a local Docker installation is not needed. The app uses MySQL; TiDB Cloud Starter provides a MySQL-compatible free quota.
+The Dockerfile and Render Blueprint run the app in demo mode with a seeded SQLite database. This avoids creating a separate paid database and does not require installing Docker locally. Deploy the repository as a Blueprint on Render and choose the `free` plan.
 
-1. Create a TiDB Cloud Starter instance on its free plan. Copy its host, port, username, and password. Check the provider's current quota and billing settings; usage beyond free allowances may be billable.
-2. In the TiDB SQL editor, run `database.sql`, then run `database_production_cleanup.sql` to remove the public demo accounts and their dependent data before making the site public.
-3. In Render, choose **New > Blueprint**, connect this GitHub repository, and confirm the `free` plan in `render.yaml`. Enter the TiDB values when prompted for `DB_HOST`, `DB_PORT`, `DB_USER`, and `DB_PASSWORD`. The Blueprint generates a persistent `APP_SECRET_KEY` and enables secure session cookies.
-4. Deploy. Render builds from the Dockerfile and provides a public HTTPS URL. Its free web service may spin down when idle; the first request after that can take about a minute.
+Demo data is stored in the container's temporary filesystem. Accounts and changes may be lost when the service restarts, spins down, or redeploys. This setup is for a short demonstration, not production or durable user data. Do not add a payment method or enable paid usage if you require a strict $0 limit.
 
-Do not add a payment method or enable paid usage if you require a strict $0 limit. Free-tier quotas and provider terms can change. If a provider requires payment details or asks to upgrade, stop rather than accepting charges.
+For a persistent MySQL deployment, set `DEMO_MODE=false` and configure the `DB_*` values from a MySQL-compatible host.
 
 ## API overview
 

@@ -1,6 +1,7 @@
 import math
 import re
 import secrets
+import sqlite3
 from hmac import compare_digest
 from typing import Any
 
@@ -9,7 +10,7 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.security import check_password_hash, generate_password_hash
 from mysql.connector.errors import IntegrityError
 
-from backend.database import execute, fetch_all, fetch_one
+from backend.database import execute, fetch_all, fetch_one, is_sqlite
 from backend.engine.graph_recommender import recommend_for_user
 from backend.models.repository import (
     account_exists,
@@ -115,6 +116,15 @@ def prevent_api_caching(response):
 
 @api.get("/health")
 def health():
+    if is_sqlite():
+        row = fetch_one("SELECT sqlite_version() AS database_version")
+        return jsonify(
+            {
+                "status": "ok",
+                "database": "sqlite demo",
+                "database_version": row["database_version"],
+            }
+        )
     row = fetch_one("SELECT VERSION() AS mysql_version")
     return jsonify({"status": "ok", "database": "connected", "mysql_version": row["mysql_version"]})
 
@@ -174,7 +184,7 @@ def register():
             display_name,
             generate_password_hash(password),
         )
-    except IntegrityError:
+    except (IntegrityError, sqlite3.IntegrityError):
         return _error("That username or email is already registered.", 409)
     user = get_user(user_id)
     return _session_response(user, 201)
@@ -309,14 +319,20 @@ def update_saved_item(user_id: int, item_id: int):
 
     if get_catalog_item(item_id) is None:
         return _error("That item does not exist or is inactive.", 404)
-    execute(
+    if is_sqlite():
+        query = """
+            INSERT INTO saved_items (user_id, item_id)
+            VALUES (%s, %s)
+            ON CONFLICT (user_id, item_id)
+            DO UPDATE SET saved_at = CURRENT_TIMESTAMP
         """
-        INSERT INTO saved_items (user_id, item_id)
-        VALUES (%s, %s)
-        ON DUPLICATE KEY UPDATE saved_at = CURRENT_TIMESTAMP
-        """,
-        (user_id, item_id),
-    )
+    else:
+        query = """
+            INSERT INTO saved_items (user_id, item_id)
+            VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE saved_at = CURRENT_TIMESTAMP
+        """
+    execute(query, (user_id, item_id))
     return jsonify({"saved": True, "item_id": item_id})
 
 
@@ -339,17 +355,26 @@ def rate_item(user_id: int):
     if get_catalog_item(item_id) is None:
         return _error("That item does not exist or is inactive.", 404)
 
-    execute(
+    if is_sqlite():
+        query = """
+            INSERT INTO ratings (user_id, item_id, rating, review_text)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (user_id, item_id)
+            DO UPDATE SET
+                rating = excluded.rating,
+                review_text = excluded.review_text,
+                updated_at = CURRENT_TIMESTAMP
         """
-        INSERT INTO ratings (user_id, item_id, rating, review_text)
-        VALUES (%s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            rating = VALUES(rating),
-            review_text = VALUES(review_text),
-            updated_at = CURRENT_TIMESTAMP
-        """,
-        (user_id, item_id, rating, review_text.strip() or None),
-    )
+    else:
+        query = """
+            INSERT INTO ratings (user_id, item_id, rating, review_text)
+            VALUES (%s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                rating = VALUES(rating),
+                review_text = VALUES(review_text),
+                updated_at = CURRENT_TIMESTAMP
+        """
+    execute(query, (user_id, item_id, rating, review_text.strip() or None))
     return jsonify({"item_id": item_id, "rating": rating})
 
 

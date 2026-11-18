@@ -4,6 +4,7 @@ from werkzeug.exceptions import HTTPException
 import mysql.connector
 
 from backend.config import build_config
+from backend.demo_database import initialize_demo_database
 from backend.routes.api import api
 
 
@@ -11,6 +12,8 @@ def create_app() -> Flask:
     config = build_config()
     app = Flask(__name__, static_folder=None)
     app.config.update(config)
+    if app.config["DB_DRIVER"] == "sqlite":
+        initialize_demo_database(app.config["SQLITE_PATH"])
     app.register_blueprint(api)
 
     @app.get("/")

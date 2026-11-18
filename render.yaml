@@ -6,16 +6,8 @@ services:
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
-      - key: DB_HOST
-        sync: false
-      - key: DB_PORT
-        sync: false
-      - key: DB_USER
-        sync: false
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_NAME
-        value: ai_graph_recommendation
+      - key: DEMO_MODE
+        value: "true"
       - key: APP_SECRET_KEY
         generateValue: true
       - key: SESSION_COOKIE_SECURE
